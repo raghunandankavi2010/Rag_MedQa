@@ -441,7 +441,7 @@ add_title_slide(prs,
     "Questions & Discussion")
 
 # ==================== SAVE ====================
-output_path = r'C:\Users\HP\Downloads\LJMU_Thesis_Defence_Presentation.pptx'
+output_path = r'E:\AI_ML\MS\LJMU_report\LJMU_Thesis_Defence_Presentation.pptx'
 prs.save(output_path)
 print(f"Presentation saved to: {output_path}")
 print(f"Total slides: {len(prs.slides)}")
