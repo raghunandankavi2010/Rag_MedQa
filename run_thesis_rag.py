@@ -39,8 +39,7 @@ from dotenv import load_dotenv
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_community.vectorstores import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_classic.chains import create_retrieval_chain
-from langchain_classic.chains.combine_documents import create_stuff_documents_chain
+from langchain_classic.chains import create_retrieval_chain, create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.documents import Document
 from langchain_core.retrievers import BaseRetriever
@@ -63,17 +62,14 @@ TOP_K = 5
 TEMPERATURE = 0.0
 
 # For quick testing, use a small eval set. For thesis results, use 50-100.
-EVAL_SIZE = 8  # Quick experiment for real results (scale up for full thesis)
-CORPUS_LIMIT = 0  # 0 means use all remaining data
+EVAL_SIZE = 20  # Thesis evaluation set size (manageable for API costs)
+CORPUS_LIMIT = 1500  # Limit corpus size for faster embedding build
 
 # ========== EMBEDDING WRAPPER (RAGAS compatibility) ==========
 class CompatibleOpenAIEmbeddings(OpenAIEmbeddings):
     """Wrapper that adds embed_query() for RAGAS compatibility."""
     def embed_query(self, text: str):
         return self.embed_documents([text])[0]
-
-# Monkey-patch OpenAIEmbeddings for RAGAS compatibility
-OpenAIEmbeddings.embed_query = lambda self, text: self.embed_documents([text])[0]
 
 # ========== DATA LOADING ==========
 def load_medquad_data(csv_path='data/medquad.csv'):
@@ -325,7 +321,7 @@ def create_modern_retrieval_chain(retriever, llm_model):
         "a qualified medical professional for personal health decisions."
     )
     prompt = ChatPromptTemplate.from_messages([
-        ("system", system_prompt + "\n\nContext:\n{context}"),
+        ("system", system_prompt),
         ("human", "{input}"),
     ])
     question_answer_chain = create_stuff_documents_chain(llm_model, prompt)
@@ -445,42 +441,10 @@ def safety_score(answer):
     return max(0.0, min(1.0, score))
 
 
-# Global RAGAS instances
-_ragas_embeddings = None
-_ragas_llm = None
-_ragas_metrics = None
-
-def get_ragas_embeddings():
-    global _ragas_embeddings
-    if _ragas_embeddings is None:
-        _ragas_embeddings = CompatibleOpenAIEmbeddings(model=EMBEDDING_MODEL)
-    return _ragas_embeddings
-
-def get_ragas_llm():
-    global _ragas_llm
-    if _ragas_llm is None:
-        from openai import OpenAI
-        from ragas.llms import llm_factory
-        client = OpenAI(api_key=OPENAI_API_KEY)
-        _ragas_llm = llm_factory(LLM_MODEL, client=client)
-    return _ragas_llm
-
-def get_ragas_metrics():
-    global _ragas_metrics
-    if _ragas_metrics is None:
-        from ragas.metrics.collections import Faithfulness, AnswerRelevancy, ContextPrecision, ContextRecall
-        llm = get_ragas_llm()
-        _ragas_metrics = [
-            Faithfulness(llm=llm),
-            AnswerRelevancy(llm=llm),
-            ContextPrecision(llm=llm),
-            ContextRecall(llm=llm),
-        ]
-    return _ragas_metrics
-
 def compute_ragas_metrics(question, answer, contexts, ground_truth):
     try:
         from ragas import evaluate as ragas_evaluate
+        from ragas.metrics import faithfulness, answer_relevancy, context_precision, context_recall
         from datasets import Dataset
         ragas_data = Dataset.from_dict({
             'question': [question],
@@ -488,17 +452,12 @@ def compute_ragas_metrics(question, answer, contexts, ground_truth):
             'contexts': [[c.page_content for c in contexts]] if contexts else [[]],
             'ground_truth': [ground_truth],
         })
-        result = ragas_evaluate(
-            ragas_data,
-            metrics=get_ragas_metrics(),
-            embeddings=get_ragas_embeddings(),
-            raise_exceptions=False,
-        )
+        result = ragas_evaluate(ragas_data, metrics=[faithfulness, answer_relevancy, context_precision, context_recall])
         return {
-            'ragas_faithfulness': float(result['faithfulness'][0]) if 'faithfulness' in result.columns else 0.0,
-            'ragas_answer_relevance': float(result['answer_relevancy'][0]) if 'answer_relevancy' in result.columns else 0.0,
-            'ragas_context_precision': float(result['context_precision'][0]) if 'context_precision' in result.columns else 0.0,
-            'ragas_context_recall': float(result['context_recall'][0]) if 'context_recall' in result.columns else 0.0,
+            'ragas_faithfulness': float(result['faithfulness'][0]),
+            'ragas_answer_relevance': float(result['answer_relevancy'][0]),
+            'ragas_context_precision': float(result['context_precision'][0]),
+            'ragas_context_recall': float(result['context_recall'][0]),
         }
     except Exception as e:
         # RAGAS can be fragile; return zeros gracefully
@@ -514,13 +473,11 @@ def compute_deepeval_metrics(question, answer, contexts, ground_truth):
     try:
         from deepeval.metrics import HallucinationMetric, FaithfulnessMetric, AnswerRelevancyMetric
         from deepeval.test_case import LLMTestCase
-        ctx_texts = [c.page_content for c in contexts] if contexts else []
         test_case = LLMTestCase(
             input=question,
             actual_output=answer,
             expected_output=ground_truth,
-            context=ctx_texts,
-            retrieval_context=ctx_texts,
+            retrieval_context=[c.page_content for c in contexts] if contexts else [],
         )
         hall = HallucinationMetric(threshold=0.5)
         hall.measure(test_case)
@@ -771,13 +728,9 @@ if __name__ == '__main__':
     # Sample evaluation set
     eval_df = stratified_sample(df, n=min(EVAL_SIZE, len(df)), stratify_col='type')
     
-    # Use all remaining data as corpus (no limit - ensures coverage)
+    # Use remaining as corpus (limited for speed)
     remaining = df[~df.index.isin(eval_df.index)].reset_index(drop=True)
-    if CORPUS_LIMIT > 0:
-        corpus_df = remaining.head(CORPUS_LIMIT)
-    else:
-        corpus_df = remaining
-    print(f"Corpus size: {len(corpus_df)}")
+    corpus_df = remaining.head(CORPUS_LIMIT)
     print(f"Evaluation set: {len(eval_df)} | Corpus: {len(corpus_df)}")
     
     # Convert to LangChain Documents
