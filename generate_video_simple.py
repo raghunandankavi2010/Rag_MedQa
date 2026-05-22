@@ -349,6 +349,6 @@ all_frames.extend(create_title_slide("Thank You", "Questions & Discussion", "", 
 print(f"Total frames: {len(all_frames)}")
 print(f"Estimated duration: {len(all_frames)/FPS:.1f} seconds ({len(all_frames)/FPS/60:.1f} minutes)")
 
-output_path = r'C:\Users\HP\Downloads\LJMU_Thesis_Defence_Video.mp4'
+output_path = r'E:\AI_ML\MS\LJMU_report\LJMU_Thesis_Defence_Video.mp4'
 imageio.mimsave(output_path, all_frames, fps=FPS, quality=8, codec='libx264', pixelformat='yuv420p')
 print(f"Video saved to: {output_path}")
