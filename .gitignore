@@ -5,5 +5,3 @@ notebooks/medquad_data/MedQuAD_repo/
 __pycache__/
 *.pyc
 .venv/
-data/
-video/
