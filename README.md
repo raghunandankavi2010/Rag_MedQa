@@ -2,23 +2,11 @@
 
 **A Comparative Study of RAG Pipelines for Reducing Hallucination in Clinical Decision Support Systems**
 
-[![Python](https://img.shields.io/badge/Python-3.11%2B-blue)](https://www.python.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![LJMU](https://img.shields.io/badge/University-LJMU-red)](https://www.ljmu.ac.uk/)
-[![upGrad](https://img.shields.io/badge/Partner-upGrad-orange)](https://www.upgrad.com/)
-
-> **MSc Artificial Intelligence and Machine Learning**  
-> Liverpool John Moores University in partnership with upGrad  
-> **Author:** Raghunandan Kavi | **Student ID:** PN1196933 | **May 2026**
-
----
-
 ## Table of Contents
 
 - [Abstract](#abstract)
 - [Problem Statement](#problem-statement)
 - [Research Objectives](#research-objectives)
-- [Repository Structure](#repository-structure)
 - [System Architecture](#system-architecture)
 - [Five Pipeline Configurations](#five-pipeline-configurations)
 - [Installation](#installation)
@@ -69,41 +57,6 @@ Most published studies evaluate a single RAG configuration with generic metrics 
 5. Analyse results by medical question type (diagnosis, treatment, medication, symptoms).
 6. Identify and document failure patterns for each pipeline.
 
----
-
-## Repository Structure
-
-```
-Rag_MedQa/
-├── data/
-│   └── MedQuAD/                    # Raw MedQuAD XML dataset
-├── notebooks/
-│   ├── RAG_medquad_corrected.py    # Core RAG pipeline notebook
-│   └── RagMedicalquestionanswer_extracted.py
-├── reports/
-│   └── figures/                    # Generated result charts (9 figures)
-├── scripts/
-│   ├── prepare_medquad.py          # Dataset preprocessing script
-│   ├── run_medquad_scrapers.py     # MedQuAD scraping utilities
-│   ├── ada_rag_experiments.py      # Embedding experiment scripts
-│   ├── find_in_langchain_core.py   # LangChain compatibility helpers
-│   └── find_langchain_document.py
-├── src/
-│   └── medquad/
-│       ├── __init__.py
-│       ├── fill_and_merge.py       # Data merging utilities
-│       ├── io.py                   # File I/O handlers
-│       ├── scrapper.py             # Web scraping for missing answers
-│       └── scrape_missing_answers.py
-├── generate_video_fast.py          # Thesis defence video generator
-├── create_improved_presentation.py # LJMU thesis defence PPT generator
-├── run_thesis_rag.py               # Main experimental runner
-├── run_thesis_streamlined.py       # Streamlined evaluation runner
-├── README.md                       # This file
-└── .venv/                          # Python virtual environment
-```
-
----
 
 ## System Architecture
 
@@ -220,63 +173,7 @@ Outputs: `E:\AI_ML\MS\LJMU_report\LJMU_Thesis_Defence_Presentation_Improved.pptx
 5. **All RAG pipelines exceed the clinical safety threshold of 0.80**; the vanilla baseline is clinically unsafe at 0.45.
 6. **Symptom questions are easiest** to answer faithfully; treatment questions remain challenging due to patient-specific factors.
 
----
 
-## Figures
-
-All result visualisations are available in `reports/figures/`:
-
-| Figure | Description |
-|--------|-------------|
-| `figure_5_1_faithfulness.png` | RAGAS Faithfulness Comparison across 5 pipelines |
-| `figure_5_2_precision_recall.png` | Context Precision and Recall trade-offs |
-| `figure_5_3_hallucination.png` | DeepEval Hallucination Rate |
-| `figure_5_4_groundedness_correctness.png` | Groundedness and Correctness scores |
-| `figure_5_5_per_type.png` | Faithfulness broken down by medical question type |
-| `figure_5_6_safety.png` | Safety Compliance vs clinical threshold |
-| `figure_5_7_failures.png` | Failure pattern distribution by pipeline |
-| `figure_5_8_latency.png` | Latency vs Accuracy trade-off |
-| `figure_5_9_correlation.png` | Faithfulness vs Hallucination correlation (r = -0.97) |
-
----
-
-## Video Presentation
-
-A complete thesis defence video (~10 minutes) can be generated using:
-
-```bash
-python generate_video_fast.py
-```
-
-The video follows LJMU/upGrad presentation standards:
-- Clean, readable slides with minimal text
-- High-resolution result charts embedded
-- Consistent LJMU red branding
-- Logical flow: Hook → Problem → Method → Results → Implications → Conclusion
-
-An improved PowerPoint version is also available:
-```bash
-python create_improved_presentation.py
-```
-
----
-
-## Citation
-
-If you use this code or dataset in your research, please cite:
-
-```bibtex
-@mastersthesis{kavi2026rag,
-  title={A Comparative Study of Retrieval-Augmented Generation Pipelines for Medical Question Answering: Reducing Hallucination in Clinical Decision Support Systems},
-  author={Kavi, Raghunandan},
-  school={Liverpool John Moores University},
-  year={2026},
-  month={May},
-  type={MSc Thesis}
-}
-```
-
----
 
 ## Acknowledgements
 
