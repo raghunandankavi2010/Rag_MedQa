@@ -9,7 +9,6 @@
 - [Research Objectives](#research-objectives)
 - [System Architecture](#system-architecture)
 - [Five Pipeline Configurations](#five-pipeline-configurations)
-- [Usage](#usage)
 - [Results](#results)
 - [Key Findings](#key-findings)
 - [Acknowledgements](#acknowledgements)
