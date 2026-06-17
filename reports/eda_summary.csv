@@ -1,0 +1,10 @@
+metric,value
+total_qa_pairs,16407.0
+unique_focus,5125.0
+unique_source_files,3497.0
+answer_len_mean,201.35
+answer_len_median,138.0
+answer_len_max,4281.0
+question_len_mean,8.21
+question_len_median,8.0
+question_len_max,27.0

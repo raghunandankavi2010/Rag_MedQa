@@ -1,7 +1,13 @@
 ﻿# Ignore files
+.env
 notebooks/.env
+data/
+chroma_elite/
 notebooks/chroma_db/
 notebooks/medquad_data/MedQuAD_repo/
 __pycache__/
 *.pyc
 .venv/
+.deepeval/
+.deepeval-cache.json
+.deepeval_telemetry.txt

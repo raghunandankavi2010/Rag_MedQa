@@ -9,7 +9,6 @@
 - [Research Objectives](#research-objectives)
 - [System Architecture](#system-architecture)
 - [Five Pipeline Configurations](#five-pipeline-configurations)
-- [Results](#results)
 - [Key Findings](#key-findings)
 - [Acknowledgements](#acknowledgements)
 
@@ -99,35 +98,6 @@ Most published studies evaluate a single RAG configuration with generic metrics 
 - Chunking: 400 tokens, 50-token overlap
 - Top-k: 5 documents
 - Prompt: Safety-oriented clinical template
-
-## Results
-
-### RAGAS Faithfulness
-
-| Pipeline | Faithfulness | Context Precision | Context Recall |
-|----------|-------------:|------------------:|---------------:|
-| Vanilla LLM | 0.42 | — | — |
-| Standard RAG | 0.78 | 0.74 | 0.71 |
-| Multi-Query Expansion | 0.81 | 0.68 | 0.79 |
-| **Hybrid Retrieval** | **0.89** | **0.86** | **0.83** |
-| Query Reformulation | 0.85 | 0.82 | 0.76 |
-
-### DeepEval Hallucination & Safety
-
-| Pipeline | Hallucination Rate | Groundedness | Safety Compliance |
-|----------|-------------------:|-------------:|------------------:|
-| Vanilla LLM | 0.58 | 0.44 | 0.45 |
-| Standard RAG | 0.22 | 0.76 | 0.84 |
-| Multi-Query Expansion | 0.19 | 0.79 | 0.86 |
-| **Hybrid Retrieval** | **0.11** | **0.88** | **0.92** |
-| Query Reformulation | 0.15 | 0.84 | 0.89 |
-
-### Statistical Validation
-
-- **ANOVA:** Significant differences in faithfulness across pipelines (*p* < 0.001)
-- **Post-hoc Tukey HSD:** Hybrid > Standard > Multi-Query > Reformulation > Vanilla
-- **Pearson correlation:** Faithfulness vs Hallucination *r* = -0.97
-
 
 ## Key Findings
 
