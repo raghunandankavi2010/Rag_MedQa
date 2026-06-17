@@ -9,11 +9,9 @@
 - [Research Objectives](#research-objectives)
 - [System Architecture](#system-architecture)
 - [Five Pipeline Configurations](#five-pipeline-configurations)
-- [Installation](#installation)
 - [Usage](#usage)
 - [Results](#results)
 - [Key Findings](#key-findings)
- - [Key Findings](#key-findings)
 - [Acknowledgements](#acknowledgements)
 
 ---
@@ -103,37 +101,6 @@ Most published studies evaluate a single RAG configuration with generic metrics 
 - Top-k: 5 documents
 - Prompt: Safety-oriented clinical template
 
----
-
-## Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/raghunandankavi2010/Rag_MedQa.git
-cd Rag_MedQa
-
-# Create virtual environment
-
-- ...and 4 more
-
-### 4. Generate Thesis Defence Video
-
-```bash
-python generate_video_fast.py
-```
-
-Outputs: `E:\AI_ML\MS\LJMU_report\LJMU_Thesis_Defence_Video.mp4`
-
-### 5. Generate Thesis Defence Presentation
-
-```bash
-python create_improved_presentation.py
-```
-
-Outputs: `E:\AI_ML\MS\LJMU_report\LJMU_Thesis_Defence_Presentation_Improved.pptx`
-
----
-
 ## Results
 
 ### RAGAS Faithfulness
@@ -162,7 +129,6 @@ Outputs: `E:\AI_ML\MS\LJMU_report\LJMU_Thesis_Defence_Presentation_Improved.pptx
 - **Post-hoc Tukey HSD:** Hybrid > Standard > Multi-Query > Reformulation > Vanilla
 - **Pearson correlation:** Faithfulness vs Hallucination *r* = -0.97
 
----
 
 ## Key Findings
 
@@ -173,8 +139,6 @@ Outputs: `E:\AI_ML\MS\LJMU_report\LJMU_Thesis_Defence_Presentation_Improved.pptx
 5. **All RAG pipelines exceed the clinical safety threshold of 0.80**; the vanilla baseline is clinically unsafe at 0.45.
 6. **Symptom questions are easiest** to answer faithfully; treatment questions remain challenging due to patient-specific factors.
 
-
-
 ## Acknowledgements
 
 - **Liverpool John Moores University** — for academic supervision and research guidance.
@@ -182,9 +146,3 @@ Outputs: `E:\AI_ML\MS\LJMU_report\LJMU_Thesis_Defence_Presentation_Improved.pptx
 - **NIH / MedQuAD** — Ben Abacha and Demner-Fushman (2019) for the dataset.
 - **OpenAI** — for API access to GPT-4o-mini and embedding models.
 - **Open-source community** — LangChain, ChromaDB, RAGAS, and DeepEval teams.
-
----
-
-<p align="center">
-  <strong>Liverpool John Moores University</strong> &nbsp;|&nbsp; <strong>upGrad</strong> &nbsp;|&nbsp; <strong>MSc Artificial Intelligence and Machine Learning</strong>
-</p>
