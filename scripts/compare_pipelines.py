@@ -275,6 +275,13 @@ def main():
 
     all_frames = []
     for pipe in pipelines:
+        # Resume support: skip pipelines already saved (e.g. after a crash or
+        # API-quota interruption); re-running only evaluates what is missing.
+        part_path = os.path.join(rc.CFG.RESULTS_DIR, f"cmp_{pipe.name}.csv")
+        if os.path.exists(part_path):
+            print(f"\n=== SKIPPING {pipe.name} (already saved: {part_path}) ===")
+            all_frames.append(pd.read_csv(part_path))
+            continue
         print(f"\n=== EVALUATING {pipe.name} ===")
         res = rc.run_evaluation(
             pipeline=pipe, eval_df=eval_df, max_questions=MAX_Q,
@@ -282,6 +289,9 @@ def main():
         )
         res = add_rouge(res)
         res.insert(0, "pipeline", pipe.name)
+        # Persist immediately so progress survives interruptions.
+        res.to_csv(part_path, index=False)
+        print(f"  Saved {pipe.name} -> {part_path}")
         all_frames.append(res)
 
     combined = pd.concat(all_frames, ignore_index=True)
