@@ -25,9 +25,7 @@
 - [Usage](#usage)
 - [Results](#results)
 - [Key Findings](#key-findings)
-- [Figures](#figures)
-- [Video Presentation](#video-presentation)
-- [Citation](#citation)
+ - [Key Findings](#key-findings)
 - [Acknowledgements](#acknowledgements)
 
 ---
@@ -162,61 +160,7 @@ git clone https://github.com/raghunandankavi2010/Rag_MedQa.git
 cd Rag_MedQa
 
 # Create virtual environment
-python -m venv .venv
 
-# Activate (Windows)
-.venv\Scripts\activate
-
-# Activate (macOS/Linux)
-source .venv/bin/activate
-
-# Install core dependencies
-pip install langchain langchain-openai langchain-community chromadb
-pip install ragas deepeval datasets
-pip install python-pptx python-docx docx2txt
-pip install Pillow opencv-python numpy pandas
-
-# Set your OpenAI API key
-set OPENAI_API_KEY=your-key-here        # Windows
-export OPENAI_API_KEY=your-key-here     # macOS/Linux
-```
-
----
-
-## Usage
-
-### 1. Prepare the MedQuAD Dataset
-
-```bash
-python scripts/prepare_medquad.py --clone --dest data/MedQuAD --output data/medquad.csv
-```
-
-If already cloned:
-```bash
-python scripts/prepare_medquad.py --dest data/MedQuAD --output data/medquad.csv
-```
-
-### 2. Run the Main Experiment
-
-```bash
-python run_thesis_rag.py
-```
-
-This executes all five pipelines on the MedQuAD evaluation set and outputs:
-- Retrieved contexts and generated answers
-- RAGAS scores per pipeline
-- DeepEval scores per pipeline
-- Latency measurements
-- Failure pattern logs
-
-### 3. Generate Figures
-
-Result charts are automatically saved to `reports/figures/`:
-- `figure_5_1_faithfulness.png` — RAGAS Faithfulness Comparison
-- `figure_5_3_hallucination.png` — DeepEval Hallucination Rate
-- `figure_5_6_safety.png` — Safety Compliance Scores
-- `figure_5_8_latency.png` — Latency Comparison
-- `figure_5_9_correlation.png` — Faithfulness vs Hallucination Correlation
 - ...and 4 more
 
 ### 4. Generate Thesis Defence Video
