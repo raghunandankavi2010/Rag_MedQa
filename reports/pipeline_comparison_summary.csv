@@ -1,0 +1,6 @@
+pipeline,latency_ms,word_overlap,safety_compliance,num_docs,ragas_faithfulness,ragas_answer_relevance,ragas_context_precision,ragas_context_recall,deepeval_hallucination,deepeval_relevance,rouge1_f,rougeL_f,failure_missing_evidence,failure_noisy_evidence,failure_unsupported_claims,failure_unsafe_tone,n
+P1_Vanilla_LLM,4659.596,0.3066,0.2816,0.0,0.3806,0.4253,0.2,0.2928,0.32,0.9327,0.3261,0.171,1.0,0.0,1.0,0.0,50
+P2_Standard_RAG,3106.872,0.1608,0.1936,5.0,0.4936,0.1854,0.7254,0.5117,0.248,0.6149,0.197,0.1285,0.1,0.82,0.0,0.0,50
+P3_Multi_Query_Expansion,41606.766,0.1674,0.2048,8.14,0.6144,0.2386,0.7187,0.5775,0.2828,0.6225,0.201,0.1279,0.02,0.92,0.0,0.0,50
+P4_Hybrid_Retrieval,3360.496,0.1392,0.1984,5.0,0.4849,0.2378,0.6415,0.532,0.28,0.5814,0.1742,0.116,0.1,0.86,0.0,0.0,50
+P5_Query_Reformulation,3969.17,0.1285,0.2032,5.0,0.5124,0.182,0.6557,0.4679,0.248,0.5613,0.1621,0.1076,0.1,0.82,0.0,0.0,50

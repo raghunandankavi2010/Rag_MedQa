@@ -1,0 +1,5 @@
+One-way ANOVA on RAGAS faithfulness across pipelines
+  k (groups) = 5
+  N (total)  = 250
+  F          = 2.0796
+  p-value    = 8.406e-02

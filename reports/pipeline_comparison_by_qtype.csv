@@ -1,0 +1,7 @@
+qtype,P1_Vanilla_LLM,P2_Standard_RAG,P3_Multi_Query_Expansion,P4_Hybrid_Retrieval,P5_Query_Reformulation
+causes,0.3333,0.7443,0.8007,0.7142,0.7976
+diagnosis,0.5,0.4615,0.9333,0.25,0.375
+frequency,0.0,0.3333,0.3333,0.0,0.3333
+information,0.6568,0.6352,0.6989,0.6699,0.629
+symptoms,0.11,0.1605,0.2722,0.216,0.2716
+treatment,0.3208,0.4048,0.6379,0.4232,0.3805
