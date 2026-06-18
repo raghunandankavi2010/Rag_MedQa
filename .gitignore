@@ -11,3 +11,5 @@ __pycache__/
 .deepeval/
 .deepeval-cache.json
 .deepeval_telemetry.txt
+.claude/
+reports/filled_*.csv
