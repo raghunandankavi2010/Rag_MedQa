@@ -257,9 +257,14 @@ def main():
     bm25 = rc.BM25Index(docs)
     reranker = rc.CrossEncoderReranker()
     reranker.fit(docs)
-    gen_llm = rc.ChatOpenAI(model=rc.CFG.GENERATION_MODEL, temperature=0.0)
+    # Controlled generator across all pipelines. gpt-4o-mini is used (rather
+    # than gpt-4o) as a cost-effective, deterministic generator; it is the
+    # model named throughout the methodology and keeps the comparison within
+    # a modest API budget.
+    GEN_MODEL = os.getenv("GEN_MODEL", "gpt-4o-mini")
+    gen_llm = rc.ChatOpenAI(model=GEN_MODEL, temperature=0.0)
     aux_llm = rc.ChatOpenAI(model=rc.CFG.AUX_MODEL, temperature=0.3)
-    print(f"  Generator: {rc.CFG.GENERATION_MODEL}  |  Aux: {rc.CFG.AUX_MODEL}")
+    print(f"  Generator: {GEN_MODEL}  |  Aux: {rc.CFG.AUX_MODEL}")
 
     pipelines = [
         VanillaPipeline(gen_llm),
