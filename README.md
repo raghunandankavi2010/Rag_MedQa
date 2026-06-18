@@ -7,8 +7,10 @@
 - [Abstract](#abstract)
 - [Problem Statement](#problem-statement)
 - [Research Objectives](#research-objectives)
+- [Dataset](#dataset)
 - [System Architecture](#system-architecture)
 - [Five Pipeline Configurations](#five-pipeline-configurations)
+- [Results](#results)
 - [Key Findings](#key-findings)
 - [Acknowledgements](#acknowledgements)
 
@@ -26,9 +28,9 @@ This repository contains the complete implementation, evaluation framework, and 
 - **Hybrid Retrieval RAG** (semantic + BM25 via Reciprocal Rank Fusion)
 - **Query Reformulation + Reranking RAG**
 
-All pipelines are evaluated using **RAGAS** metrics (faithfulness, context precision, context recall, answer relevance) and **DeepEval** metrics (hallucination rate, groundedness, correctness, safety compliance) on the **MedQuAD** dataset containing 47,457 question-answer pairs from 12 NIH sources.
+All pipelines are evaluated using **RAGAS** metrics (faithfulness, context precision, context recall, answer relevance) and **DeepEval** metrics (hallucination rate, safety compliance) on the **MedQuAD** dataset. Each pipeline was evaluated on n=50 questions (N=250 total).
 
-**Key Result:** Hybrid retrieval achieves **0.89 faithfulness** and **0.11 hallucination rate** — a **47-point improvement** and **81% relative reduction** over the vanilla baseline.
+**Key Result:** Multi-Query Expansion achieves the highest faithfulness (**0.614**) — a **23-point improvement** over the vanilla baseline (0.381). Standard RAG and Query Reformulation achieve the lowest hallucination rate (**0.248**), a **22.5% relative reduction** from the vanilla baseline (0.320).
 
 ---
 
@@ -50,20 +52,38 @@ Most published studies evaluate a single RAG configuration with generic metrics 
 2. Implement five comparable pipelines using identical generator, prompt, and decoding settings.
 3. Run all pipelines on the same question set with full traceability and reproducibility.
 4. Measure performance using RAGAS and DeepEval metrics, reporting aggregate results.
-5. Analyse results by medical question type (diagnosis, treatment, medication, symptoms).
+5. Analyse results by medical question type (diagnosis, treatment, causes, symptoms).
 6. Identify and document failure patterns for each pipeline.
 
+---
+
+## Dataset
+
+**MedQuAD** — curated from 12 NIH sources (Ben Abacha & Demner-Fushman, 2019).
+
+| Statistic | Value |
+|-----------|-------|
+| Total QA pairs (after cleaning) | 16,407 |
+| Unique medical focus terms | 5,125 |
+| Unique source files | 3,497 |
+| Mean answer length (words) | 201 |
+| Median answer length (words) | 138 |
+| Mean question length (words) | 8 |
+
+Corpus chunked at **400 tokens** with **50-token overlap** and indexed in ChromaDB.
+
+---
 
 ## System Architecture
 
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
 │   MedQuAD CSV   │────▶│  Text Splitter  │────▶│ Vector Database │
-│  (47,457 Q&A)   │     │ (400t / 50ovlp) │     │    (ChromaDB)   │
+│  (16,407 Q&A)   │     │ (400t / 50ovlp) │     │    (ChromaDB)   │
 └─────────────────┘     └─────────────────┘     └─────────────────┘
                                                         │
 ┌─────────────────┐     ┌─────────────────┐            │
-│   GPT-4o-mini   │◀───│  Prompt Engine  │◀───────────┘
+│   GPT-4o-mini   │◀────│  Prompt Engine  │◀───────────┘
 │   (Generator)   │     │  (Safety + RAG) │
 └─────────────────┘     └─────────────────┘
         │
@@ -72,10 +92,10 @@ Most published studies evaluate a single RAG configuration with generic metrics 
 │                        Evaluation Layer                          │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
 │  │RAGAS Metrics│  │DeepEval     │  │Statistical Testing      │  │
-│  │Faithfulness │  │Hallucination│  │ANOVA + Tukey HSD        │  │
-│  │Precision    │  │Groundedness │  │Pearson Correlation      │  │
-│  │Recall       │  │Correctness  │  │                         │  │
-│  │Relevance    │  │Safety       │  │                         │  │
+│  │Faithfulness │  │Hallucination│  │One-way ANOVA            │  │
+│  │Ctx Precision│  │Relevance    │  │F=2.08, p=0.084          │  │
+│  │Ctx Recall   │  │Safety       │  │                         │  │
+│  │Answer Rel.  │  │             │  │                         │  │
 │  └─────────────┘  └─────────────┘  └─────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -88,7 +108,7 @@ Most published studies evaluate a single RAG configuration with generic metrics 
 |----------|-------------------|-------------|
 | **P1** | Vanilla LLM | No retrieval; baseline using only parametric knowledge |
 | **P2** | Standard RAG | Dense semantic retrieval with vector embeddings |
-| **P3** | Multi-Query Expansion | Generates 4 query variants, fuses results |
+| **P3** | Multi-Query Expansion | Generates 4 query variants, fuses results (avg 8.14 docs) |
 | **P4** | Hybrid Retrieval | Combines dense + BM25 via Reciprocal Rank Fusion (RRF) |
 | **P5** | Query Reformulation + Reranking | Rewrites query, then reranks with cross-encoder |
 
@@ -99,14 +119,66 @@ Most published studies evaluate a single RAG configuration with generic metrics 
 - Top-k: 5 documents
 - Prompt: Safety-oriented clinical template
 
+---
+
+## Results
+
+### Aggregate Pipeline Performance (n=50 per pipeline)
+
+| Pipeline | Faithfulness ↑ | Ans. Relevance ↑ | Ctx Precision ↑ | Ctx Recall ↑ | Hallucination ↓ | Latency (ms) ↓ |
+|----------|:--------------:|:----------------:|:---------------:|:------------:|:---------------:|:--------------:|
+| P1 Vanilla LLM | 0.381 | **0.425** | 0.200 | 0.293 | 0.320 | 4,660 |
+| P2 Standard RAG | 0.494 | 0.185 | **0.725** | 0.512 | **0.248** | **3,107** |
+| P3 Multi-Query Expansion | **0.614** | 0.239 | 0.719 | **0.578** | 0.283 | 41,607 |
+| P4 Hybrid Retrieval | 0.485 | 0.238 | 0.642 | 0.532 | 0.280 | 3,360 |
+| P5 Query Reformulation | 0.512 | 0.182 | 0.656 | 0.468 | **0.248** | 3,969 |
+
+Bold = best in column. ↑ higher is better, ↓ lower is better.
+
+### RAGAS Faithfulness by Question Type
+
+| Question Type | P1 Vanilla | P2 Std RAG | P3 Multi-Query | P4 Hybrid | P5 Q-Reform |
+|---------------|:----------:|:----------:|:--------------:|:---------:|:-----------:|
+| Causes | 0.333 | 0.744 | **0.801** | 0.714 | 0.798 |
+| Diagnosis | 0.500 | 0.462 | **0.933** | 0.250 | 0.375 |
+| Frequency | 0.000 | 0.333 | **0.333** | 0.000 | 0.333 |
+| Information | 0.657 | 0.635 | **0.699** | 0.670 | 0.629 |
+| Symptoms | 0.110 | 0.161 | **0.272** | 0.216 | 0.272 |
+| Treatment | 0.321 | 0.405 | **0.638** | 0.423 | 0.381 |
+
+### Failure Mode Analysis
+
+| Pipeline | Missing Evidence | Noisy Evidence | Unsupported Claims | Unsafe Tone |
+|----------|:----------------:|:--------------:|:------------------:|:-----------:|
+| P1 Vanilla LLM | 1.000 | 0.000 | 1.000 | 0.000 |
+| P2 Standard RAG | 0.100 | 0.820 | 0.000 | 0.000 |
+| P3 Multi-Query Expansion | 0.020 | **0.920** | 0.000 | 0.000 |
+| P4 Hybrid Retrieval | 0.100 | 0.860 | 0.000 | 0.000 |
+| P5 Query Reformulation | 0.100 | 0.820 | 0.000 | 0.000 |
+
+### Statistical Testing
+
+One-way ANOVA on RAGAS faithfulness across all five pipelines:
+
+- **F(4, 245) = 2.08**, **p = 0.084**
+
+The difference in mean faithfulness across pipelines does not reach statistical significance at α=0.05, suggesting the observed ranking should be interpreted cautiously given n=50 per group.
+
+---
+
 ## Key Findings
 
-1. **Retrieval grounding dramatically reduces hallucination** — 62–81% relative improvement across all RAG variants.
-2. **Hybrid retrieval is the standout performer** — highest faithfulness (0.89), lowest hallucination (0.11), highest safety (0.92).
-3. **Multi-query expansion improves recall but introduces noise** — a clear precision-coverage trade-off.
-4. **Query reformulation improves precision but adds latency** (3,200ms), limiting real-time viability.
-5. **All RAG pipelines exceed the clinical safety threshold of 0.80**; the vanilla baseline is clinically unsafe at 0.45.
-6. **Symptom questions are easiest** to answer faithfully; treatment questions remain challenging due to patient-specific factors.
+1. **Multi-Query Expansion achieves the highest faithfulness (0.614)** — a 23-point absolute improvement over the vanilla baseline (0.381), and the best performance across every question type.
+2. **Retrieval grounding reduces hallucination** — Standard RAG and Query Reformulation both achieve 0.248 hallucination rate, a 22.5% relative reduction from the vanilla baseline (0.320).
+3. **Standard RAG delivers the best context precision (0.725)** and the lowest latency among retrieval pipelines (3,107 ms), making it the most practical choice for real-time use.
+4. **Multi-Query Expansion is extremely slow (41,607 ms per query)** — its faithfulness gains come at the cost of ~13× latency versus Standard RAG, making it unsuitable for interactive systems.
+5. **The vanilla baseline fails entirely on missing-evidence and unsupported-claim dimensions** (both 1.00) — confirming that retrieval grounding is essential for safe medical QA.
+6. **Noisy evidence is the dominant failure mode for all RAG pipelines** (0.82–0.92), indicating that retrieved context often contains irrelevant passages that the model must ignore.
+7. **Diagnosis questions benefit most from retrieval** — P3 achieves 0.933 faithfulness on diagnosis versus 0.500 for the vanilla baseline.
+8. **Frequency questions are consistently hardest** — all pipelines score ≤ 0.333, suggesting this category requires specialised handling.
+9. **ANOVA is not significant (p = 0.084)** — differences across pipelines are directionally consistent but do not reach significance at n=50 per group; a larger evaluation set is recommended.
+
+---
 
 ## Acknowledgements
 
